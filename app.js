@@ -77,13 +77,27 @@ app.put('/tasklists/:tasklistId',(req,res)=>{
     .catch((error)=>{console.log(error);
       res.status(500);});
     });
+    // here is the update for the delete
   // delete a tasklist
   app.delete('/tasklists/:tasklistId',(req,res)=>{
     let taskLsitId=req.params.tasklistId;
-    TaskList.findByIdAndDelete(taskLsitId)
-    .then((taskList)=>{res.status(201).send(taskList);})
+    // delete all tasks withing a tasklist if that tasklist is deleted
+    const deletAllContainigTask =(taskList)=>{
+Task.deleteMany({_taskListId:taskLsitId})
+.then(()=>{
+return taskList
+})
+.catch((error)=>{
+console.log(error);
+});
+    };
+    const responseTaskList=TaskList.findByIdAndDelete(taskLsitId)
+    .then((taskList)=>{
+      deletAllContainigTask(taskList);
+      })
     .catch((error)=>{console.log(error);
       res.status(500);});
+      res.status(200).send(responseTaskList);
     });
 /*
 crud operation for task, a task should always belong to a tasklist
