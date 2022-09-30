@@ -85,6 +85,53 @@ app.put('/tasklists/:tasklistId',(req,res)=>{
     .catch((error)=>{console.log(error);
       res.status(500);});
     });
+/*
+crud operation for task, a task should always belong to a tasklist
+*/
+// get all tasks for 1 tasklist, http://localhost:3000/tasklists/:taskistId/tasks
+app.get("/tasklists/:tasklistId/tasks",(req,res)=>{
+Task.find({_taskListId:req.params.tasklistId})
+.then((tasks)=>{
+res.status(200).send(tasks);
+})
+.catch((error)=>{console.log(error)});
+});
+// create a task inside a particular tasklist
+app.post('/tasklists/:tasklistId/tasks',(req,res)=>{
+  let taskObj={'title':req.body.title,'_taskListId':req.params.tasklistId};
+  Task(taskObj).save()
+  .then((task)=>{
+    res.status(201).send(task);
+  })
+  .catch((error)=>{console.log(error);
+  res.status(500);});
+    // TaskList= new TaskList({taskListObj});
+  });
+// http://localhost:3000/tasklists/:taskistId/tasks/:taskId
+// get 1 task inside 1 tasklist
+app.get("/tasklists/:tasklistId/tasks/:taskId",(req,res)=>{
+  Task.findOne({_taskListId:req.params.tasklistId,_id:req.params.taskId})
+  .then((task)=>{
+  res.status(200).send(task);
+  })
+  .catch((error)=>{console.log(error)});
+  });
+// update 1 task belonging to 1 tasklist
+app.patch('/tasklists/:tasklistId/tasks/:taskId',(req,res)=>{
+  let taskLsitId=req.params.tasklistId;
+  Task.findOneAndUpdate({_taskListId:taskLsitId, _id:req.params.taskId},{$set:req.body})
+  .then((task)=>{res.status(200).send(task);})
+  .catch((error)=>{console.log(error);
+    res.status(500);});
+  });
+  // delete 1 task belong to 1 tasklist
+  app.delete('/tasklists/:tasklistId/tasks/:taskId',(req,res)=>{
+    let taskLsitId=req.params.tasklistId;
+    Task.findByIdAndDelete({_taskListId:taskLsitId, _id:req.params.taskId})
+    .then((task)=>{res.status(201).send(task);})
+    .catch((error)=>{console.log(error);
+      res.status(500);});
+    });
 app.listen(3000,()=>{
   console.log("server started on port 3000!");
 });
